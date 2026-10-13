@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>英语早读任务站</title>
+<style>
+:root{--blue:#245b9e;--green:#2d8559;--ink:#20344a;--muted:#64748b;--bg:#f4f7fb;--line:#dce5ef}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:linear-gradient(120deg,#d9ebff,#e8f7ee);padding:24px 18px;border-bottom:1px solid var(--line)}
+.head{max-width:1100px;margin:auto;display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+h1{margin:0;color:#173f70;font-size:clamp(26px,4vw,38px)}.sub{margin:4px 0 0;color:#47627c}
+main{max-width:1100px;margin:20px auto;padding:0 14px 40px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+button,.button{border:0;border-radius:10px;padding:10px 14px;background:var(--blue);color:white;cursor:pointer;font:inherit;font-weight:650}
+button.secondary{background:#e6eef7;color:#244c79}button.green{background:var(--green)}button.danger{background:#a63c3c}button.small{padding:6px 10px;font-size:14px}
+input,textarea,select{width:100%;border:1px solid #cbd7e4;border-radius:9px;padding:10px;font:inherit;background:white;color:var(--ink)}
+textarea{min-height:84px;resize:vertical}label{display:block;font-size:14px;font-weight:650;margin:10px 0 5px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 3px 12px #1e3a5f0a;margin-bottom:16px}
+.card h2{font-size:21px;margin:0 0 12px}.card h3{font-size:17px;margin:0 0 8px}.muted{color:var(--muted);font-size:14px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.tabs button{background:#e7edf4;color:#35516e}.tabs button.active{background:var(--green);color:white}
+.task-list{padding-left:24px;margin:8px 0}.task-list li{padding:3px 0}
+.item{border:1px solid #e1e8f0;border-radius:12px;padding:12px;margin:9px 0}.item-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.english{font-weight:700;font-size:18px}.meaning{color:#52677d}.item-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.pill{font-size:12px;background:#edf5ff;color:#315b8a;padding:3px 8px;border-radius:99px}
+.sentence-box{background:#f5f9ff;border-radius:10px;padding:12px;margin:8px 0}.adapt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hidden{display:none!important}.progress{height:8px;background:#e7edf4;border-radius:99px;overflow:hidden}.progress>div{height:100%;background:var(--green);width:0}
+.archive-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #e8edf3;padding:12px 0}.archive-row:last-child{border-bottom:0}
+footer{text-align:center;color:#6b8197;padding:12px;font-size:14px}
+@media(max-width:700px){.grid,.adapt-grid{grid-template-columns:1fr}.card{padding:14px}.head{align-items:flex-start}.toolbar button{flex:1}.archive-row{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header><div class="head"><div><h1>☀ 英语早读任务站</h1><p class="sub">每天一点积累，遇见更好的自己。</p></div><div><strong id="todayLabel"></strong><div class="muted">随时复习往日内容 · 点击即可听读</div></div></div></header>
+<main>
+<div class="toolbar">
+<button id="homeBtn">今日任务</button><button class="secondary" id="archiveBtn">历史任务 / 复习</button><button class="secondary" id="editBtn">教师编辑</button>
+</div>
+<section id="studentView">
+<div class="card"><div class="item-top"><div><h2 id="lessonTitle">今日早读任务</h2><div id="lessonMeta" class="muted"></div></div><span class="pill" id="taskCount">任务</span></div><ol id="taskList" class="task-list"></ol><div class="progress"><div id="progressBar"></div></div><div class="muted" id="progressText">完成进度：0%</div><div class="item-actions"><button class="green" id="markAll">全部完成</button><button class="secondary" id="playAll">▶ 播放全部英文</button></div></div>
+<div class="card"><h2>需要背诵的内容</h2><div class="tabs"><button class="active" data-tab="words">单词</button><button data-tab="phrases">短语</button><button data-tab="sentences">重点句</button></div><div id="contentList"></div><div class="item-actions"><button class="secondary" id="hideMeanings">隐藏 / 显示中文</button></div></div>
+<div class="card"><h2>每日一句改编</h2><p class="muted">从基础句型出发，迁移到高考应用文与读后续写。</p><div class="adapt-grid"><div class="sentence-box"><h3>✉ 应用文</h3><div class="muted">原句</div><p id="appOriginal"></p><div class="muted">改编句</div><p id="appAdapted"></p><div class="meaning" id="appNote"></div><button class="small secondary" id="playApp">▶ 播放</button></div><div class="sentence-box"><h3>📖 读后续写</h3><div class="muted">原句</div><p id="storyOriginal"></p><div class="muted">改编句</div><p id="storyAdapted"></p><div class="meaning" id="storyNote"></div><button class="small secondary" id="playStory">▶ 播放</button></div></div></div>
+</section>
+<section id="archiveView" class="card hidden"><h2>历史任务 / 复习</h2><p class="muted">已保存的任务会保留在本浏览器中。选择某一天即可重新学习；教师也可以导出备份。</p><div id="archiveList"></div></section>
+<section id="editView" class="card hidden"><h2>教师编辑任务</h2><p class="muted">保存后，任务会进入历史列表。日期相同会更新该日期的内容。建议定期导出 JSON 备份；本版本数据保存在当前浏览器中。</p>
+<label>任务日期</label><input type="date" id="fDate">
+<label>任务标题</label><input id="fTitle" placeholder="例如：必修一 Unit 1 早读任务">
+<label>早读要求（每行一条）</label><textarea id="fTasks" placeholder="朗读并背诵单词、短语和重点句各3遍&#10;遮住中文进行自测&#10;完成每日一句仿写"></textarea>
+<div class="grid"><div><label>单词（每行一条：英文 | 音标 | 词性 | 中文）</label><textarea id="fWords"></textarea></div><div><label>短语（每行一条：英文 | 中文）</label><textarea id="fPhrases"></textarea></div></div>
+<label>重点句（每行一条：英文 | 中文）</label><textarea id="fSentences"></textarea>
+<div class="grid"><div><label>应用文原句</label><textarea id="fAppO"></textarea><label>应用文改编句</label><textarea id="fAppA"></textarea><label>应用文提示 / 用途</label><input id="fAppN"></div><div><label>读后续写原句</label><textarea id="fStoryO"></textarea><label>读后续写改编句</label><textarea id="fStoryA"></textarea><label>续写提示 / 用途</label><input id="fStoryN"></div></div>
+<div class="item-actions"><button id="saveLesson">保存任务</button><button class="secondary" id="newLesson">新建空白任务</button><button class="secondary" id="exportData">导出备份 JSON</button><label class="button secondary" style="display:inline-block;cursor:pointer">导入备份 JSON<input id="importData" type="file" accept=".json,application/json" style="display:none"></label></div><p class="muted" id="editStatus" role="status"></p></section>
+<footer>英语早读任务站 · 坚持朗读，积累表达，学会迁移</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const starter={date:today(),title:"高中英语早读示例任务",tasks:["朗读并背诵单词、短语和重点句各3遍。","遮住中文释义，自测单词和短语。","朗读每日改编句，并尝试替换关键词进行仿写。"],words:[
+["achieve","/əˈtʃiːv/","v.","实现；达到"],["develop","/dɪˈveləp/","v.","发展；培养"],["benefit","/ˈbenɪfɪt/","v./n.","使受益；益处"],["challenge","/ˈtʃælɪndʒ/","n./v.","挑战"],["opportunity","/ˌɒpəˈtjuːnəti/","n.","机会"],["responsible","/rɪˈspɒnsəbl/","adj.","有责任心的"],["environment","/ɪnˈvaɪrənmənt/","n.","环境"],["protect","/prəˈtekt/","v.","保护"],["traditional","/trəˈdɪʃənəl/","adj.","传统的"],["experience","/ɪkˈspɪəriəns/","n./v.","经历；经验"]],
+phrases:[["take action","采取行动"],["be proud of","为……感到骄傲"],["adapt to","适应"],["make a difference","产生影响"],["grow up","长大；成长"],["as a result","结果；因此"],["set a goal","设定目标"],["on the other hand","另一方面"],["in the long run","从长远来看"],["play an important role","发挥重要作用"]],
+sentences:[["It is never too late to start again.","重新开始永远不晚。"],["What we do today shapes our tomorrow.","我们今天所做的决定着我们的明天。"],["Learning a new language opens a window to the world.","学习一门新语言就打开了一扇通往世界的窗。"],["Facing difficulties is part of growing up.","面对困难是成长的一部分。"],["Small steps can lead to big changes.","微小的步伐也能带来巨大的改变。"]],
+appOriginal:"I look forward to your reply at your earliest convenience.",appAdapted:"I would appreciate it if you could reply at your earliest convenience.",appNote:"应用文：更礼貌、正式的请求表达，可用于邮件结尾。",storyOriginal:"She stood there for a long time, looking at the old photo.",storyAdapted:"Her eyes filled with tears as she stood there, holding the old photo in her hands.",storyNote:"读后续写：用情绪反应和伴随动作丰富人物描写。"};
+let lessons=[],currentDate=today(),activeTab="words",showMeanings=true,done=new Set();
+function load(){try{lessons=JSON.parse(localStorage.getItem("earlyReadingLessons")||"[]")}catch{lessons=[]}if(!lessons.length){lessons=[starter];saveStore()}if(!lessons.some(x=>x.date===today())){currentDate=lessons.slice().sort((a,b)=>b.date.localeCompare(a.date))[0].date}else currentDate=today()}
+function saveStore(){localStorage.setItem("earlyReadingLessons",JSON.stringify(lessons))}
+function getLesson(date=currentDate){return lessons.find(x=>x.date===date)||lessons.slice().sort((a,b)=>b.date.localeCompare(a.date))[0]}
+function showSection(which){["studentView","archiveView","editView"].forEach(id=>$(id).classList.toggle("hidden",id!==which));if(which==="archiveView")renderArchive();if(which==="editView")fillForm(getLesson())}
+function speak(text){if(!("speechSynthesis"in window)){alert("当前浏览器不支持自动朗读，请尝试最新版 Chrome 或 Edge。");return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=/[\u4e00-\u9fff]/.test(text)?"zh-CN":"en-US";u.rate=.88;speechSynthesis.speak(u)}
+function render(){const l=getLesson();if(!l)return;$("todayLabel").textContent=l.date;$("lessonTitle").textContent=l.title||"早读任务";$("lessonMeta").textContent=`任务日期：${l.date} · 共 ${l.tasks.length} 项要求`;$("taskCount").textContent=`${l.words.length}词 · ${l.phrases.length}短语 · ${l.sentences.length}句`;
+$("taskList").innerHTML=l.tasks.map((t,i)=>`<li><label style="display:flex;gap:8px;align-items:flex-start;font-weight:400;margin:0"><input type="checkbox" class="taskcheck" data-i="${i}" style="width:auto;margin-top:6px">${esc(t)}</label></li>`).join("");document.querySelectorAll(".taskcheck").forEach(c=>c.addEventListener("change",updateProgress));updateProgress();renderContent();
+$("appOriginal").textContent=l.appOriginal||"（尚未添加）";$("appAdapted").textContent=l.appAdapted||"（尚未添加）";$("appNote").textContent=l.appNote||"";$("storyOriginal").textContent=l.storyOriginal||"（尚未添加）";$("storyAdapted").textContent=l.storyAdapted||"（尚未添加）";$("storyNote").textContent=l.storyNote||""}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function updateProgress(){let c=[...document.querySelectorAll(".taskcheck")];let n=c.filter(x=>x.checked).length;$("progressBar").style.width=(c.length?n/c.length*100:0)+"%";$("progressText").textContent=`完成进度：${c.length?Math.round(n/c.length*100):0}% (${n}/${c.length})`}
+function renderContent(){const l=getLesson(),arr=l[activeTab]||[];document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===activeTab));$("contentList").innerHTML=arr.length?arr.map((it,i)=>{let en=it[0],meaning=it[it.length-1],extra=activeTab==="words"?`<span class="muted">${esc(it[1]||"")}　${esc(it[2]||"")}</span>`:"";return `<div class="item"><div class="item-top"><div><div class="english">${esc(en)}</div>${extra}<div class="meaning ${showMeanings?"":"hidden"}">${esc(meaning)}</div></div><span class="pill">${i+1}</span></div><div class="item-actions"><button class="small" data-speak="${i}">▶ 播放</button><button class="small secondary" data-reveal="${i}">显示中文</button></div></div>`}).join():"<p class='muted'>本分类暂时没有内容，请教师在编辑页面添加。</p>";document.querySelectorAll("[data-speak]").forEach(b=>b.onclick=()=>speak(arr[+b.dataset.speak][0]));document.querySelectorAll("[data-reveal]").forEach(b=>b.onclick=()=>{const m=b.closest(".item").querySelector(".meaning");m.classList.toggle("hidden");b.textContent=m.classList.contains("hidden")?"显示中文":"隐藏中文"})}
+function renderArchive(){const sorted=lessons.slice().sort((a,b)=>b.date.localeCompare(a.date));$("archiveList").innerHTML=sorted.map(l=>`<div class="archive-row"><div><strong>${esc(l.date)} · ${esc(l.title||"早读任务")}</strong><div class="muted">${l.words.length}个单词 · ${l.phrases.length}个短语 · ${l.sentences.length}个重点句</div></div><div class="item-actions"><button class="small" data-open="${esc(l.date)}">复习此任务</button><button class="small secondary" data-edit="${esc(l.date)}">编辑</button><button class="small secondary" data-audio="${esc(l.date)}">▶ 播放重点句</button></div></div>`).join("");document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{currentDate=b.dataset.open;showSection("studentView");render()});document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{currentDate=b.dataset.edit;showSection("editView");fillForm(getLesson())});document.querySelectorAll("[data-audio]").forEach(b=>b.onclick=()=>{const l=getLesson(b.dataset.audio);speak(l.sentences.map(x=>x[0]).join(". "))})}
+function fillForm(l){l=l||starter;$("fDate").value=l.date||today();$("fTitle").value=l.title||"";$("fTasks").value=(l.tasks||[]).join("\n");$("fWords").value=(l.words||[]).map(x=>x.join(" | ")).join("\n");$("fPhrases").value=(l.phrases||[]).map(x=>x.join(" | ")).join("\n");$("fSentences").value=(l.sentences||[]).map(x=>x.join(" | ")).join("\n");$("fAppO").value=l.appOriginal||"";$("fAppA").value=l.appAdapted||"";$("fAppN").value=l.appNote||"";$("fStoryO").value=l.storyOriginal||"";$("fStoryA").value=l.storyAdapted||"";$("fStoryN").value=l.storyNote||""}
+function lines(id){return $(id).value.split("\n").map(x=>x.trim()).filter(Boolean)}
+function pairs(id,n){return lines(id).map(line=>{let a=line.split("|").map(x=>x.trim());while(a.length<n)a.push("");return a.slice(0,n)})}
+function saveLesson(){const date=$("fDate").value||today();const l={date,title:$("fTitle").value.trim()||"英语早读任务",tasks:lines("fTasks"),words:pairs("fWords",4),phrases:pairs("fPhrases",2),sentences:pairs("fSentences",2),appOriginal:$("fAppO").value.trim(),appAdapted:$("fAppA").value.trim(),appNote:$("fAppN").value.trim(),storyOriginal:$("fStoryO").value.trim(),storyAdapted:$("fStoryA").value.trim(),storyNote:$("fStoryN").value.trim()};const idx=lessons.findIndex(x=>x.date===date);if(idx>=0)lessons[idx]=l;else lessons.push(l);lessons.sort((a,b)=>a.date.localeCompare(b.date));saveStore();currentDate=date;$("editStatus").textContent="已保存！任务已加入历史列表。";render()}
+$("homeBtn").onclick=()=>{currentDate=today();if(!lessons.some(x=>x.date===currentDate))currentDate=lessons.slice().sort((a,b)=>b.date.localeCompare(a.date))[0].date;showSection("studentView");render()};
+$("archiveBtn").onclick=()=>showSection("archiveView");$("editBtn").onclick=()=>showSection("editView");$("saveLesson").onclick=saveLesson;
+$("newLesson").onclick=()=>{fillForm({date:today(),title:"",tasks:[],words:[],phrases:[],sentences:[]});$("editStatus").textContent="填写内容后点击保存任务。"};
+$("exportData").onclick=()=>{const blob=new Blob([JSON.stringify(lessons,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="英语早读任务备份.json";a.click();URL.revokeObjectURL(a.href)};
+$("importData").onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());if(!Array.isArray(data))throw Error();lessons=data;saveStore();currentDate=today();render();$("editStatus").textContent="备份导入成功。"}catch{$("editStatus").textContent="导入失败：请检查 JSON 文件格式。"}e.target.value=""};
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{activeTab=b.dataset.tab;renderContent()});
+$("hideMeanings").onclick=()=>{showMeanings=!showMeanings;renderContent()};
+$("markAll").onclick=()=>{document.querySelectorAll(".taskcheck").forEach(c=>c.checked=true);updateProgress()};
+$("playAll").onclick=()=>{const l=getLesson();speak([...l.words.map(x=>x[0]),...l.phrases.map(x=>x[0]),...l.sentences.map(x=>x[0])].join(". "))};
+$("playApp").onclick=()=>speak(getLesson().appAdapted||getLesson().appOriginal||"");$("playStory").onclick=()=>speak(getLesson().storyAdapted||getLesson().storyOriginal||"");
+load();render();
+</script>
+</body></html>
